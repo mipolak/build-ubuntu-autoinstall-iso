@@ -15,6 +15,8 @@ IMAGE="ubuntu-20.04.1-live-server-amd64.iso"
 cp configs/user-data DATA/nocloud/user-data
 touch DATA/nocloud/meta-data
 
+# need to fix md5sum check, causing warning with 1 file found 
+
 # update boot flags
 sed -i 's|---|autoinstall ds=nocloud\\\;s=/cdrom/nocloud/ locale=en_US console-setup/ask_detect=false  console-setup/layoutcode=us console-setup/layoutcode=us console-setup/modelcode=SKIP translation/warn-light=true localechooser/translation/warn-severe=true keyboard-configuration/modelcode=SKIP keyboard-configuration/layout="English (US)" keyboard-configuration/variant="English (US)" ---|g' ./DATA/boot/grub/grub.cfg
 sed -i 's|---|autoinstall ds=nocloud;s=/cdrom/nocloud/ locale=en_US console-setup/ask_detect=false  console-setup/layoutcode=us console-setup/layoutcode=us console-setup/modelcode=SKIP translation/warn-light=true localechooser/translation/warn-severe=true keyboard-configuration/modelcode=SKIP keyboard-configuration/layout="English (US)" keyboard-configuration/variant="English (US)" ---|g' ./DATA/isolinux/txt.cfg
