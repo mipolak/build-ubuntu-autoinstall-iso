@@ -1,0 +1,25 @@
+#cloud-config
+autoinstall:    
+    version: 1
+    locale: en_US.UTF-8
+    keyboard:
+        layout: us
+    network:
+        network:
+            version: 2
+            ethernets:
+                enp3s0:
+                    dhcp4: yes
+    storage:
+        layout:
+            name: lvm
+    identity:
+        hostname: test-ver1
+        username: ubuntu
+        password: $6$WzDcG7S6OayO7.$yztyveCG9in8OjIt3t40adr4wHiMj6XkHQ17UjTHB2Dk4E6KwftFsEKykGbs0vLU3.au13ercWCwYhzuxnSeG/
+    ssh:
+        install-server: yes
+        # authorized key will be added later
+        #authorized-keys:
+        # - $key
+        allow-pw: yes
