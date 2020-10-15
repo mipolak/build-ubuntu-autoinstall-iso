@@ -15,6 +15,8 @@ IMAGE="ubuntu-20.04.1-live-server-amd64.iso"
 cp configs/user-data DATA/nocloud/user-data
 touch DATA/nocloud/meta-data
 
+#
+rm -rf 'DATA/[BOOT]'
 # need to fix md5sum check, causing warning with 1 file found 
 
 # update boot flags
