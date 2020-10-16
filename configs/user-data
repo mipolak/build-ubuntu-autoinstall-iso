@@ -1,5 +1,5 @@
 #cloud-config
-autoinstall:    
+autoinstall:
   version: 1
   locale: en_US
   keyboard:
@@ -73,3 +73,10 @@ autoinstall:
         # authorized key will be added later
         #authorized-keys:
         # - $key
+  late-commands:
+    - curtin in-target --target=/target -- hostnamectl set-hostname $(dmidecode -s system-uuid)
+    - curtin in-target --target=/target -- echo -e "*.*   @@192.168.1.103:514" > /etc/rsyslog.d/01-example.conf
+    - curtin in-target --target=/target -- curl -L https://bootstrap.saltstack.com -o /tmp/install.sh
+    - curtin in-target --target=/target -- sh -c "( sh /tmp/install.sh -P -x python3 > /dev/null 2>&1 ; echo "" )"
+    - curtin in-target --target=/target -- echo -e "id:$(dmidecode -s system-uuid)\nmaster:192.168.1.103\n" > /etc/salt/minion.d/minion.conf
+
