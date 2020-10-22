@@ -6,66 +6,52 @@ autoinstall:
     layout: us
   network:
     ethernets:
-      enp0s3:
+      match: 
+        name: "en*"   
         dhcp4: true
+        nameservers:
+          addresses: [8.8.8.8, 1.1.1.1]
     version: 2
   storage:
+    grub:
+      reorder_uefi: False
     config:
-    - grub_device: true
-      id: disk-sda
-      path: /dev/sda
-      ptable: gpt
-      wipe: superblock-recursive
-      type: disk
+    - {ptable: gpt, path: /dev/sda, preserve: false, name: '', grub_device: false,
+      type: disk, id: disk-sda}
+    - {device: disk-sda, size: 536870912, wipe: superblock, flag: boot, number: 1,
+      preserve: false, grub_device: true, type: partition, id: partition-sda1}
+    - {fstype: fat32, volume: partition-sda1, preserve: false, type: format, id: format-2}
+    - {device: disk-sda, size: 1073741824, wipe: superblock, flag: linux, number: 2,
+      preserve: false, grub_device: false, type: partition, id: partition-sda2}
+    - {fstype: ext4, volume: partition-sda2, preserve: false, type: format, id: format-0}
+    - {device: disk-sda, size: -1, flag: linux, number: 3, preserve: false,
+      grub_device: false, type: partition, id: partition-sda3}
+    - name: vg-0
+      devices: [partition-sda3]
       preserve: false
-    - device: disk-sda
-      flag: bios_grub
-      number: 1
-      id: partition-0
-      type: partition
-      size: 1048576
-      preserve: false
-    - device: disk-sda
-      size: 1073741824
-      wipe: superblock
-      type: partition
-      number: 2
-      id: partition-1
-    - fstype: ext4
-      volume: partition-1
-      type: format
-      id: format-0
-    - device: disk-sda
-      size: 11073741824
-      wipe: superblock
-      number: 3
-      type: partition
-      id: partition-2
-    - fstype: ext4
-      volume: partition-2
-      type: format
-      id: format-1
-    - device: disk-sda
-      size: 11073741824
-      wipe: superblock
-      number: 4
-      type: partition
-      id: partition-3
-    - fstype: ext4
-      volume: partition-3
-      type: format
-      id: format-2
-    - device: format-1
-      path: /
-      type: mount
-      id: mount-1
-    - device: format-0
-      path: /boot
-      type: mount
-      id: mount-0
+      type: lvm_volgroup
+      id: lvm-volgroup-vg-0
+    - {name: lv-root, volgroup: lvm-volgroup-vg-0, size: 40%, preserve: false,
+      type: lvm_partition, id: lvm-partition-lv-root}
+    - {fstype: ext4, volume: lvm-partition-lv-root, preserve: false, type: format,
+      id: format-1}
+    - {name: lv-swap, volgroup: lvm-volgroup-vg-0, size: 4294967296, preserve: false,
+      type: lvm_partition, id: lvm-partition-lv-swap}
+    - {fstype: swap, volume: lvm-partition-lv-swap, preserve: false, type: format,
+      id: format-4}
+    - {name: lv-app, volgroup: lvm-volgroup-vg-0, size: -1, preserve: false,
+      type: lvm_partition, id: lvm-partition-lv-app}
+    - {fstype: ext4, volume: lvm-partition-lv-app, preserve: false, type: format,
+      id: format-3}
+    - {device: format-1, path: /, type: mount, id: mount-2}
+    - {device: format-0, path: /boot, type: mount, id: mount-1}
+    - {device: format-2, path: /boot/efi, type: mount, id: mount-3}
+    - {device: format-3, path: /srv, type: mount, id: mount-4}
+    - {device: format-4, path: swap, type: swap, id: mount-5}
+
   identity:
-    hostname: test-ver1
-    username: ubuntu
+    hostname: testmachine
+    username: osadmin
     password: $6$WzDcG7S6OayO7.$yztyveCG9in8OjIt3t40adr4wHiMj6XkHQ17UjTHB2Dk4E6KwftFsEKykGbs0vLU3.au13ercWCwYhzuxnSeG/
   ssh:
     install-server: yes
@@ -74,8 +60,9 @@ autoinstall:
         #authorized-keys:
         # - $key
   late-commands:
-    - curtin in-target --target=/target -- hostnamectl set-hostname $(dmidecode -s system-uuid)
-    - curtin in-target --target=/target -- echo -e "*.*   @@192.168.1.103:514" > /etc/rsyslog.d/01-example.conf
-    - curtin in-target --target=/target -- curl -L https://bootstrap.saltstack.com -o /tmp/install.sh
-    - curtin in-target --target=/target -- sh -c "( sh /tmp/install.sh -P -X -i $(dmidecode -s system-uuid) -x python3 > /dev/null 2>&1  )"
-
+    - printf '*.*   @@192.168.1.200:514' > /target/etc/rsyslog.d/01-example.conf
+    - printf 'id:$(dmidecode -s system-uuid)\nmaster:192.168.1.200\n' > /target/etc/salt/minion.d/minion.conf 
+    - set -i 's/^preserve_hostname:.*$/preserve_hostname:true/' /target/etc/cloud/cloud.cfg
+    - cp -rp /media/custom /target/root/.
+  user-data:
+    preserve_hostname: true
