@@ -11,10 +11,10 @@ MAINPWD=$(pwd)
 
 ##### filesystem.squashfs update & including latest patches into the image
 sudo mount -o loop ./SOURCEIMG/${IMAGE} ./DATA/ISOMOUNT
-rsync --exclude=/casper/filesystem.squashfs -a ./DATA/ISOMOUNT ./DATA/BUILD/cd 
+rsync --exclude=/casper/filesystem.squashfs/ -a ./DATA/ISOMOUNT ./DATA/BUILD/cd 
 sudo modprobe squashfs
 sudo mount -t squashfs -o loop ./DATA/ISOMOUNT/casper/filesystem.squashfs ./DATA/BUILD/squashfs
-sudo rsync -a ./DATA/BUILD/squashfs ./DATA/BUILD/custom
+sudo rsync -a ./DATA/BUILD/squashfs/ ./DATA/BUILD/custom
 
 # network data for chroot env
 sudo cp ./DATA/BUILD/custom/etc/resolv.conf ./DATA/BUILD/custom/etc/resolv.conf_bck
@@ -31,12 +31,15 @@ export HOME=/root
 apt-get update
 apt-get dist-upgrade
 apt-get clean
+umount /proc
+umount /sys
 EOT
 
 sudo cp ./DATA/BUILD/custom/etc/resolv.conf_bck ./DATA/BUILD/custom/etc/resolv.conf 
 sudo cp ./DATA/BUILD/custom/etc/hosts_bck ./DATA/BUILD/custom/etc/hosts
 sudo cp ./DATA/BUILD/custom/etc/apt/sources.list_bck ./DATA/BUILD/custom/etc/apt/sources.list
 
+sudo mv ./DATA/BUILD/cd/casper/filesystem.manifest ./DATA/BUILD/cd/casper/filesystem.manifest_old
 sudo chroot ./DATA/BUILD/custom dpkg-query -W --showformat='${Package} ${Version}\n' > ./DATA/BUILD/cd/casper/filesystem.manifest
 sudo mksquashfs ./DATA/BUILD/custom ./DATA/BUILD/cd/casper/filesystem.squashfs
 sudo rm ./DATA/BUILD/cd/md5sum.txt
@@ -47,7 +50,7 @@ cp configs/user-data ./DATA/BUILD/cd/nocloud/user-data
 touch ./DATA/BUILD/cd/nocloud/meta-data
 
 #
-rm -rf './DATA/BUILD/cd/[BOOT]'
+sudo rm -rf './DATA/BUILD/cd/[BOOT]'
 
 # umount loops 
 sudo umount ${MAINPWD}/DATA/BUILD/squashfs
