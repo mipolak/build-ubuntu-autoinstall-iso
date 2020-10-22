@@ -45,9 +45,9 @@ sudo mksquashfs ./DATA/BUILD/custom ./DATA/BUILD/cd/casper/filesystem.squashfs
 sudo rm ./DATA/BUILD/cd/md5sum.txt
 
 # copy cloud-init
-[ -d ./DATA/BUILD/cd/nocloud ] || mkdir ./DATA/BUILD/cd/nocloud
-cp configs/user-data ./DATA/BUILD/cd/nocloud/user-data
-touch ./DATA/BUILD/cd/nocloud/meta-data
+[ -d ./DATA/BUILD/cd/nocloud ] || sudo mkdir ./DATA/BUILD/cd/nocloud
+sudo cp configs/user-data ./DATA/BUILD/cd/nocloud/user-data
+sudo touch ./DATA/BUILD/cd/nocloud/meta-data
 
 #
 sudo rm -rf './DATA/BUILD/cd/[BOOT]'
