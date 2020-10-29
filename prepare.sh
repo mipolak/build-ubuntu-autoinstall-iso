@@ -31,6 +31,16 @@ mount -t sysfs none /sys/
 export HOME=/root
 apt-get update
 apt-get dist-upgrade -y
+echo "#!/bin/bash
+cd /tmp
+wget -c https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.2.21/linux-headers-5.2.21-050221_5.2.21-050221.201910111731_all.deb
+wget -c https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.2.21/linux-headers-5.2.21-050221-generic_5.2.21-050221.201910111731_amd64.deb
+wget -c https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.2.21/linux-image-unsigned-5.2.21-050221-generic_5.2.21-050221.201910111731_amd64.deb
+wget -c https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.2.21/linux-modules-5.2.21-050221-generic_5.2.21-050221.201910111731_amd64.deb
+apt install -f ./*deb -y
+" > /root/kernel_downgrade.sh
+chmod +x /root/kernel_downgrade.sh
+/root/kernel_downgrade.sh
 apt-get clean
 umount /proc
 umount /sys
