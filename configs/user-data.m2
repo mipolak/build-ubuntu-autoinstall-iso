@@ -1,7 +1,6 @@
 #cloud-config
 autoinstall:
   version: 1
-  refresh-installer: false
   locale: en_US
   keyboard:
     layout: us
@@ -17,19 +16,19 @@ autoinstall:
     grub:
       reorder_uefi: False
     config:
-    - {ptable: gpt, path: /dev/nvme0n1, preserve: false, name: '', grub_device: false,
-      type: disk, id: disk-m2}
-    - {device: disk-m2, size: 536870912, wipe: superblock-recursive, flag: boot, number: 1,
-      preserve: false, grub_device: true, type: partition, id: p1}
-    - {fstype: fat32, volume: p1, preserve: false, type: format, id: format-0}
-    - {device: disk-m2, size: 105G, flag: linux, number: 2, preserve: false,
-      grub_device: false, type: partition, id: p2}
-    - {fstype: ext4, volume: p2, preserve: false, type: format, id: format-1}
-    - {device: disk-m2, size: 105G, flag: linux, number: 3, preserve: false,
-      grub_device: false, type: partition, id: p3}
-    - {fstype: ext4, volume: p3, preserve: false, type: format, id: format-2} 
+    - {ptable: gpt, path: /dev/nvme0n1, wipe: superblock-recursive, preserve: false, 
+      name: '', grub_device: false, type: disk, id: disk-nvme0n1}
+    - {device: disk-nvme0n1, size: 536870912, wipe: superblock, flag: boot, number: 1,
+      preserve: false, grub_device: true, type: partition, id: partition-0}
+    - {fstype: fat32, volume: partition-0, preserve: false, type: format, id: format-0}
+    - {device: disk-nvme0n1, size: 112742891520, wipe: superblock, flag: '', number: 2,
+      preserve: false, type: partition, id: partition-1}
+    - {fstype: ext4, volume: partition-1, preserve: false, type: format, id: format-1}
     - {device: format-1, path: /, type: mount, id: mount-1}
-    - {device: format-0, path: /boot/efi, type: mount, id: mount-2}
+    - {device: disk-nvme0n1, size: 112742891520, wipe: superblock, flag: '', number: 3,
+      preserve: false, type: partition, id: partition-2}
+    - {fstype: ext4, volume: partition-2, preserve: false, type: format, id: format-2}
+    - {device: format-0, path: /boot/efi, type: mount, id: mount-0}
   identity:
     hostname: testmachine
     username: osadmin
