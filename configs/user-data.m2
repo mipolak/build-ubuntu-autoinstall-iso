@@ -24,10 +24,10 @@ autoinstall:
     - {fstype: fat32, volume: p1, preserve: false, type: format, id: format-0}
     - {device: disk-m2, size: 105G, flag: linux, number: 2, preserve: false,
       grub_device: false, type: partition, id: p2}
-	- {fstype: ext4, volume: p2, preserve: false, type: format, id: format-1}
+    - {fstype: ext4, volume: p2, preserve: false, type: format, id: format-1}
     - {device: disk-m2, size: 105G, flag: linux, number: 3, preserve: false,
       grub_device: false, type: partition, id: p3}
-	- {fstype: ext4, volume: p3, preserve: false, type: format, id: format-2} 
+    - {fstype: ext4, volume: p3, preserve: false, type: format, id: format-2} 
     - {device: format-1, path: /, type: mount, id: mount-1}
     - {device: format-0, path: /boot/efi, type: mount, id: mount-2}
   identity:
