@@ -26,10 +26,17 @@ sudo cp /etc/resolv.conf /etc/hosts ${BPATH}/custom/etc/
 sudo cp /etc/apt/sources.list ${BPATH}/custom/etc/apt/
 
 # modification inside chroot
+sudo mount --bind /dev ${BPATH}/custom/dev
+sudo mount --bind /run ${BPATH}/custom/run
 sudo chroot ${BPATH}/custom << EOT
 mount -t proc none /proc/
 mount -t sysfs none /sys/
+mount -t devpts none /dev/pts
 export HOME=/root
+export LC_ALL=C
+dbus-uuidgen > /var/lib/dbus/machine-id
+dpkg-divert --local --rename --add /sbin/initctl
+ln -s /bin/true /sbin/initctl
 apt-get update
 apt-get dist-upgrade -y
 cd /tmp
@@ -40,9 +47,15 @@ wget -c https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.2.21/linux-modules-5.2
 apt install -f ./*deb -y
 apt install modemmanager -y
 apt install network-manager -y
-apt-get clean
-umount /proc
-umount /sys
+apt-get autoremove
+apt-get autoclean
+rm -rf /tmp/li*
+rm /var/lib/dbus/machine-id
+rm /sbin/initctl
+dpkg-divert --rename --remove /sbin/initctl
+umount -lf /proc
+umount -lf /sys
+umount -lf /dev/pts
 EOT
 
 ##  network configuration 
@@ -69,6 +82,12 @@ sudo rm -rf '${BPATH}/cd/[BOOT]'
 ##  umount loops 
 sudo umount ${BPATH}/squashfs
 sudo umount ${MAINPWD}/DATA/ISOMOUNT
+sudo umount ${BPATH}/custom/dev
+sudo umount ${BPATH}/custom/run
+
+##  copy generated kernel image and initrd to casper folder
+sudo cp ${BPATH}/custom/boot/vmlinuz-5.2.21-050221-generic ${BPATH}/cd/casper/vmlinuz
+sudo cp ${BPATH}/custom/boot/initrd.img-5.2.21-050221-generic ${BPATH}/cd/casper/initrd.img
 
 ##  update boot flags
 sudo sed -i 's|---|autoinstall ds=nocloud\\\;s=/cdrom/nocloud/ locale=en_US console-setup/ask_detect=false  console-setup/layoutcode=us console-setup/layoutcode=us console-setup/modelcode=SKIP translation/warn-light=true localechooser/translation/warn-severe=true keyboard-configuration/modelcode=SKIP keyboard-configuration/layout="English (US)" keyboard-configuration/variant="English (US)" ---|g' ${BPATH}/cd/boot/grub/grub.cfg
